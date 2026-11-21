@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ScamGym: practise against a simulated scammer, and check suspicious links and messages before you click or reply. Fictional scenarios only.">
+  <meta name="theme-color" content="#070B09">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="ScamGym">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <title>ScamGym — train your instincts against scams</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #070b09;
+    }
+    #boot {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: #070b09;
+      color: #b7f36b;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-align: center;
+      padding: 24px;
+    }
+    #boot small {
+      display: block;
+      margin-top: 10px;
+      color: #6f8579;
+      font-size: 10px;
+      letter-spacing: 0.6px;
+    }
+  </style>
+</head>
+<body>
+  <div id="boot">
+    SCAMGYM
+    <small>SIMULATION ONLY · loading the gym…</small>
+  </div>
+  <script src="flutter_bootstrap.js" async></script>
+  <script src="boot.js" defer></script>
+</body>
+</html>

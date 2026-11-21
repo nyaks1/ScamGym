@@ -1,0 +1,35 @@
+{
+  "name": "ScamGym",
+  "short_name": "ScamGym",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#070B09",
+  "theme_color": "#070B09",
+  "description": "Practise against a simulated scammer, and check suspicious links and messages before you click or reply. Fictional scenarios only.",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/Icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/Icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/Icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/Icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

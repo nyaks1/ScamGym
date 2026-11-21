@@ -1,0 +1,10 @@
+# Web framework
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.32,<1.0
+pydantic>=2.9,<3.0
+
+# Gemini (official Google Gen AI SDK)
+google-genai>=1.0,<2.0
+
+# Config
+python-dotenv>=1.0,<2.0
