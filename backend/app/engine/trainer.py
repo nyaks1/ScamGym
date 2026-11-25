@@ -25,6 +25,7 @@ from app.scenarios.base import Scenario
 logger = logging.getLogger("scamgym.trainer")
 
 FALLBACK_LINE = "Sorry, I lost your last message. Are you still there? I can only hold this open for a few more minutes."
+CLOSING_FALLBACK_LINE = "Alright, I will close this case from my side."
 
 
 class AIUnavailableError(RuntimeError):
@@ -74,6 +75,7 @@ class Trainer:
 
             otp_requested = self._otp_requested(round)
             before_len = len(round.transcript)
+            before_planted = set(round.planted)
             before_actions = dict(round.actions)
             before_status = round.status
             before_score = round.score
@@ -84,18 +86,26 @@ class Trainer:
 
             try:
                 if round.chat is None:
-                    round.chat = await self.gemini.start_chat(round.scenario)
+                    prior_turns = round.transcript[1:before_len]
+                    round.chat = await self.gemini.start_chat(
+                        round.scenario,
+                        history=prior_turns or None,
+                    )
                 reply = await self._exchange(round, text)
             except GeminiUnavailableError as exc:
-                self._rollback(round, before_len, before_actions, before_status, before_score)
+                self._rollback(
+                    round, before_len, before_planted, before_actions, before_status, before_score
+                )
                 raise AIUnavailableError("Gemini is not configured on this server") from exc
             except Exception:
-                self._rollback(round, before_len, before_actions, before_status, before_score)
+                self._rollback(
+                    round, before_len, before_planted, before_actions, before_status, before_score
+                )
                 raise
 
             reply = sanitize_scammer_text(reply, round.scenario)
             if not reply or looks_like_refusal(reply):
-                reply = FALLBACK_LINE
+                reply = CLOSING_FALLBACK_LINE if round.status == "scored" else FALLBACK_LINE
 
             round.transcript.append({"role": "scammer", "text": reply})
             round.turns += 1
@@ -243,18 +253,33 @@ class Trainer:
     def _rollback(
         round: Round,
         before_len: int,
+        before_planted: set[str],
         before_actions: dict[str, Action],
         before_status: str,
         before_score: dict | None,
     ) -> None:
         del round.transcript[before_len:]
+        round.planted = before_planted
         round.actions = before_actions
         round.status = before_status
         round.score = before_score
+        # Drop the SDK chat so any partial tool-call turn cannot poison retries.
+        round.chat = None
 
 
 def _response_text(response) -> str:
     try:
+        candidates = getattr(response, "candidates", None) or []
+        if candidates:
+            content = getattr(candidates[0], "content", None)
+            parts = getattr(content, "parts", None) or []
+            chunks = [
+                part.text
+                for part in parts
+                if getattr(part, "text", None) and not getattr(part, "thought", False)
+            ]
+            if chunks:
+                return "".join(chunks).strip()
         return (response.text or "").strip()
     except Exception:  # noqa: BLE001 - a blocked candidate has no text
         return ""

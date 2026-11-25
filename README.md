@@ -120,10 +120,10 @@ CORS_ORIGINS=http://localhost:5000,http://127.0.0.1:5000
 
 ```bash
 cd frontend
-flutter build web --release
+flutter build web --release --no-web-resources-cdn
 ```
 
-The server automatically serves `frontend/build/web` at <http://localhost:8080/> when that build exists. Restart the backend after building. Same-origin means no CORS configuration is needed.
+`--no-web-resources-cdn` bundles CanvasKit locally so the app satisfies the server's strict `default-src 'self'` Content-Security-Policy without external CDN requests. The server automatically serves `frontend/build/web` at <http://localhost:8080/> when that build exists. Restart the backend after building. Same-origin means no CORS configuration is needed.
 
 #### Android emulator
 
@@ -166,7 +166,7 @@ All configuration is environment-based. Copy `backend/.env.example` to `backend/
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `GEMINI_API_KEY` | empty | Server-side Gemini key. Empty disables training and AI explanations. |
-| `GEMINI_MODEL` | `gemini-2.5-flash` | Model used for the scammer and triage coach. |
+| `GEMINI_MODEL` | `gemini-3.5-flash-lite` | Model used for the scammer and triage coach. |
 | `HOST` | `0.0.0.0` | Bind address. |
 | `PORT` | `8080` | Bind port. |
 | `TRUST_PROXY` | `0` | Set to `1` behind a trusted reverse proxy so rate limits see real client IPs. |
@@ -467,7 +467,7 @@ ScamGym is a training tool, not an official bank, government or law-enforcement 
 - [x] In-memory rounds with TTL, rate limits and security headers
 - [x] Flutter client for Android, iOS and web (Train / Check a link / Check a message)
 - [x] 72 backend tests passing
-- [ ] Flutter `analyze` / `test` / release build verified on the target machine
+- [x] Flutter `analyze` / `test` / web release build verified
 - [ ] Docker image and hosted deployment
 - [ ] Public privacy notice and consent flow for a hosted instance
 
@@ -475,6 +475,6 @@ ScamGym is a training tool, not an official bank, government or law-enforcement 
 
 ## Credits
 
-Built with [FastAPI](https://fastapi.tiangolo.com/), [Google Gemini](https://ai.google.dev/) via the official [`google-genai`](https://github.com/googleapis/python-genai) Python SDK, and [Flutter](https://flutter.dev/). The client bundles DejaVu Sans and DejaVu Sans Mono; their licence is in `frontend/assets/fonts/LICENSE.txt`.
+Built with [FastAPI](https://fastapi.tiangolo.com/), [Google Gemini](https://ai.google.dev/) via the official [`google-genai`](https://github.com/googleapis/python-genai) Python SDK, and [Flutter](https://flutter.dev/). The client bundles IBM Plex Sans and IBM Plex Mono; their licence is in `frontend/assets/fonts/IBMPlex-LICENSE.txt`.
 
 ScamGym is a buildathon project. Add a licence before publishing or redistributing it.

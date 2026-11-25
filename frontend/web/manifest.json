@@ -3,10 +3,10 @@
   "short_name": "ScamGym",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#070B09",
-  "theme_color": "#070B09",
+  "background_color": "#161616",
+  "theme_color": "#161616",
   "description": "Practise against a simulated scammer, and check suspicious links and messages before you click or reply. Fictional scenarios only.",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "prefer_related_applications": false,
   "icons": [
     {

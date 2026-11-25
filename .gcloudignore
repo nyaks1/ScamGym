@@ -1,0 +1,24 @@
+# Control what `gcloud run deploy --source .` uploads to Cloud Build.
+# Note: `.gitignore` ignores `build/`, so we explicitly keep `frontend/build/web/`.
+.git/
+.gitignore
+.tmp/
+README.md
+backend/.env
+backend/.env.*
+backend/.venv/
+backend/.pytest_cache/
+backend/tests/
+backend/requirements-dev.txt
+**/__pycache__/
+**/*.pyc
+**/*Zone.Identifier*
+frontend/.dart_tool/
+frontend/android/
+frontend/ios/
+frontend/lib/
+frontend/test/
+frontend/web/
+frontend/assets/
+frontend/build/*
+!frontend/build/web/

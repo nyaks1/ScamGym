@@ -21,13 +21,17 @@ flutter:
   uses-material-design: true
 
   fonts:
-    - family: ScamGymSans
+    - family: IBMPlexSans
       fonts:
-        - asset: assets/fonts/DejaVuSans.ttf
-        - asset: assets/fonts/DejaVuSans-Bold.ttf
-          weight: 700
-    - family: ScamGymMono
+        - asset: assets/fonts/IBMPlexSans-Light.ttf
+          weight: 300
+        - asset: assets/fonts/IBMPlexSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IBMPlexSans-SemiBold.ttf
+          weight: 600
+    - family: IBMPlexMono
       fonts:
-        - asset: assets/fonts/DejaVuSansMono.ttf
-        - asset: assets/fonts/DejaVuSansMono-Bold.ttf
-          weight: 700
+        - asset: assets/fonts/IBMPlexMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IBMPlexMono-SemiBold.ttf
+          weight: 600

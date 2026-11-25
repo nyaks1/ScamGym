@@ -125,6 +125,13 @@ def test_clicking_and_sharing_otp_costs_more_than_refusing() -> None:
     assert bad["breakdown"]["action_penalty"] < 0
     assert good["breakdown"]["action_bonus"] > 0
 
+    bad_points = {action["kind"]: action["points"] for action in bad["actions"]}
+    assert bad_points["shared_otp"] < 0
+    assert bad_points["clicked_link"] < 0
+
+    good_points = {action["kind"]: action["points"] for action in good["actions"]}
+    assert good_points["refused"] > 0
+
 
 def test_spotted_flags_are_matched_from_the_learners_own_words() -> None:
     scenario = get_scenario("kalahari-bank")

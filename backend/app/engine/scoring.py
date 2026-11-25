@@ -359,7 +359,9 @@ def compute_score(
             {
                 "kind": action.kind,
                 "label": ACTION_LABELS.get(action.kind, action.kind),
-                "points": PENALTIES.get(action.kind, -BONUSES.get(action.kind, 0)),
+                "points": -PENALTIES[action.kind]
+                if action.kind in PENALTIES
+                else BONUSES.get(action.kind, 0),
                 "source": action.source,
             }
             for action in unique_actions.values()

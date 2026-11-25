@@ -26,21 +26,51 @@ class _Sample {
 
 class _LinkScreenState extends State<LinkScreen> {
   final TextEditingController _controller = TextEditingController();
+  final GlobalKey _resultKey = GlobalKey();
+  final GlobalKey _formKey = GlobalKey();
   bool _loading = false;
   LinkReport? _report;
   String? _error;
 
+  static const _maxLength = 2048;
+
   static const _samples = [
-    _Sample('Lookalike bank link', 'http://kalahari-bank.example.com.verify-login.top/reverse'),
+    _Sample(
+      'Lookalike bank link',
+      'http://kalahari-bank.example.com.verify-login.top/reverse',
+    ),
     _Sample('Shortened link', 'https://bit.ly/3xample'),
     _Sample('Raw IP address', 'http://197.0.0.1/login'),
-    _Sample('Practice domain', 'https://kalahari-bank-secure.example.com/reverse'),
+    _Sample(
+      'Practice domain',
+      'https://kalahari-bank-secure.example.com/reverse',
+    ),
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onText);
+  }
+
+  @override
   void dispose() {
-    _controller.dispose();
+    _controller
+      ..removeListener(_onText)
+      ..dispose();
     super.dispose();
+  }
+
+  void _onText() {
+    if (mounted) setState(() {});
+  }
+
+  void _clear() {
+    _controller.clear();
+    setState(() {
+      _report = null;
+      _error = null;
+    });
   }
 
   Future<void> _check([String? value]) async {
@@ -62,6 +92,7 @@ class _LinkScreenState extends State<LinkScreen> {
         _report = report;
         _loading = false;
       });
+      _scrollToResult();
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -71,10 +102,32 @@ class _LinkScreenState extends State<LinkScreen> {
     }
   }
 
+  void _scrollToResult() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final resultContext = _resultKey.currentContext;
+      if (resultContext == null) return;
+      Scrollable.ensureVisible(
+        resultContext,
+        duration: const Duration(milliseconds: 320),
+        curve: Curves.easeOut,
+        alignment: 0.02,
+      );
+    });
+  }
+
+  void _scrollToForm() {
+    final formContext = _formKey.currentContext;
+    if (formContext == null) return;
+    Scrollable.ensureVisible(
+      formContext,
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOut,
+      alignment: 0.05,
+    );
+  }
+
   void _snack(String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+    showScamSnackBar(context, message);
   }
 
   @override
@@ -83,7 +136,7 @@ class _LinkScreenState extends State<LinkScreen> {
       builder: (context, constraints) {
         final maxWidth = math.min(constraints.maxWidth, 960.0);
         return SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxWidth),
@@ -91,30 +144,39 @@ class _LinkScreenState extends State<LinkScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _head(),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   const Text(
                     'Paste a suspicious web address. ScamGym reads it as text and scores the structural '
                     'warning signs: lookalike domains, raw IPs, shorteners, suspicious endings and '
                     'credential-harvest paths. The verdict is computed by code, not guessed by a model.',
-                    style: TextStyle(color: AppColors.muted, fontSize: 13.5, height: 1.55),
+                    style: TextStyle(
+                      fontFamily: 'IBMPlexSans',
+                      color: AppColors.textSecondary,
+                      fontSize: 14,
+                      height: 1.43,
+                    ),
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 24),
                   _form(),
-                  const SizedBox(height: 12),
-                  _sampleRow(),
                   const SizedBox(height: 16),
+                  const Eyebrow('Examples'),
+                  const SizedBox(height: 8),
+                  _sampleRow(),
+                  const SizedBox(height: 24),
                   if (_loading) const LoadingLine('Reading the address…'),
                   if (_error != null) ...[
-                    SectionCard(
-                      border: Border.all(color: AppColors.red.withValues(alpha: 0.4)),
-                      color: AppColors.red.withValues(alpha: 0.05),
-                      child: Text(
-                        _error!,
-                        style: const TextStyle(color: Color(0xFFFFC0C0), fontSize: 13, height: 1.5),
-                      ),
+                    InlineNotice(
+                      kind: 'error',
+                      title: 'Could not check the link',
+                      message: _error!,
                     ),
                   ],
-                  if (_report != null) _LinkResult(report: _report!),
+                  if (_report != null)
+                    _LinkResult(
+                      key: _resultKey,
+                      report: _report!,
+                      onCheckAnother: _scrollToForm,
+                    ),
                   const AppFooter(),
                 ],
               ),
@@ -132,23 +194,30 @@ class _LinkScreenState extends State<LinkScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Eyebrow('Link checker'),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               'Check a link before you click',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
         );
-        const pill = Pill(label: 'Never opens the link', color: AppColors.sky);
+        const pill = Pill(
+          label: 'Never opens the link',
+          color: AppColors.supportInfo,
+        );
         if (constraints.maxWidth >= 620) {
           return Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [Expanded(child: title), const SizedBox(width: 14), pill],
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: title),
+              const SizedBox(width: 16),
+              pill,
+            ],
           );
         }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [title, const SizedBox(height: 10), pill],
+          children: [title, const SizedBox(height: 12), pill],
         );
       },
     );
@@ -156,47 +225,66 @@ class _LinkScreenState extends State<LinkScreen> {
 
   Widget _form() {
     return SectionCard(
-      padding: const EdgeInsets.all(16),
+      key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Eyebrow('Web address', color: AppColors.muted),
+          const Eyebrow('Web address'),
           const SizedBox(height: 8),
           LayoutBuilder(
             builder: (context, constraints) {
-              final field = TextField(
-                controller: _controller,
-                autocorrect: false,
-                keyboardType: TextInputType.url,
-                textInputAction: TextInputAction.go,
-                onSubmitted: (_) => _check(),
-                style: kMono.copyWith(fontSize: 13),
-                decoration: scamInput(hint: 'https://…'),
+              final field = Semantics(
+                label: 'Web address',
+                child: TextField(
+                  controller: _controller,
+                  autocorrect: false,
+                  keyboardType: TextInputType.url,
+                  textInputAction: TextInputAction.go,
+                  maxLength: _maxLength,
+                  onSubmitted: (_) => _check(),
+                  style: const TextStyle(
+                    fontFamily: 'IBMPlexMono',
+                    fontSize: 14,
+                    height: 1.43,
+                    color: AppColors.textPrimary,
+                  ),
+                  decoration: scamInput(
+                    hint: 'https://…',
+                    suffix: _controller.text.isEmpty
+                        ? null
+                        : ClearFieldButton(
+                            onPressed: _clear,
+                            tooltip: 'Clear the web address',
+                          ),
+                  ).copyWith(counterText: ''),
+                ),
               );
               final button = FilledButton(
                 onPressed: _loading ? null : _check,
-                style: primaryButtonStyle,
                 child: _loading
                     ? const SizedBox(
-                        width: 15,
-                        height: 15,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : const Text('Check link'),
               );
               if (constraints.maxWidth >= 560) {
                 return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(child: field),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 16),
                     button,
                   ],
                 );
               }
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [field, const SizedBox(height: 10), button],
+                children: [field, const SizedBox(height: 16), button],
               );
             },
           ),
@@ -207,21 +295,19 @@ class _LinkScreenState extends State<LinkScreen> {
 
   Widget _sampleRow() {
     return Wrap(
-      spacing: 7,
-      runSpacing: 7,
+      spacing: 4,
+      runSpacing: 4,
       children: [
         for (final sample in _samples)
-          OutlinedButton(
+          TextButton(
             onPressed: _loading ? null : () => _check(sample.value),
-            style: secondaryButtonStyle.copyWith(
+            style: ghostButtonStyle.copyWith(
+              minimumSize: const WidgetStatePropertyAll(Size(0, 32)),
               padding: const WidgetStatePropertyAll(
-                EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+                EdgeInsets.symmetric(horizontal: 8, vertical: 0),
               ),
             ),
-            child: Text(
-              sample.label,
-              style: const TextStyle(fontSize: 11.5, color: AppColors.muted),
-            ),
+            child: Text(sample.label),
           ),
       ],
     );
@@ -230,135 +316,94 @@ class _LinkScreenState extends State<LinkScreen> {
 
 class _LinkResult extends StatelessWidget {
   final LinkReport report;
+  final VoidCallback onCheckAnother;
 
-  const _LinkResult({required this.report});
+  const _LinkResult({
+    super.key,
+    required this.report,
+    required this.onCheckAnother,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final color = verdictColor(report.verdict);
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.panel,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.line),
+        color: AppColors.layer,
+        borderRadius: BorderRadius.zero,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final info = Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  VerdictChip(verdict: report.verdict, label: report.verdictLabel),
-                  const SizedBox(height: 10),
-                  Text(
-                    report.verdictLabel,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: color),
+          ReportHead(
+            verdict: report.verdict,
+            verdictLabel: report.verdictLabel,
+            score: report.score,
+            details: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SelectableText(
+                  report.host.isEmpty ? report.input : report.host,
+                  style: kMono.copyWith(
+                    color: AppColors.textSecondary,
+                    fontSize: 14,
                   ),
+                ),
+                if (report.normalized.isNotEmpty &&
+                    report.normalized != report.input) ...[
                   const SizedBox(height: 4),
                   SelectableText(
-                    report.host.isEmpty ? report.input : report.host,
-                    style: kMono.copyWith(color: AppColors.muted, fontSize: 12),
-                  ),
-                  if (report.normalized.isNotEmpty && report.normalized != report.input) ...[
-                    const SizedBox(height: 3),
-                    SelectableText(
-                      report.normalized,
-                      style: kMono.copyWith(color: AppColors.muted2, fontSize: 10.5),
+                    report.normalized,
+                    style: kMono.copyWith(
+                      color: AppColors.textHelper,
+                      fontSize: 12,
                     ),
-                  ],
-                ],
-              );
-              final ring = ScoreRing(
-                score: report.score,
-                size: 88,
-                color: color,
-              );
-              if (constraints.maxWidth >= 560) {
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(child: info),
-                    const SizedBox(width: 16),
-                    ring,
-                  ],
-                );
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(child: info),
-                      const SizedBox(width: 12),
-                      ring,
-                    ],
                   ),
                 ],
-              );
-            },
+              ],
+            ),
           ),
           if (report.isDemo) ...[
-            const SizedBox(height: 14),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.sky.withValues(alpha: 0.06),
-                border: Border.all(color: AppColors.sky.withValues(alpha: 0.3)),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                'This is a reserved practice domain from the simulation. example.com and example.test '
-                'cannot reach a real organisation.',
-                style: TextStyle(color: Color(0xFFCFEAF6), fontSize: 12.5, height: 1.5),
-              ),
+            const SizedBox(height: 24),
+            const InlineNotice(
+              kind: 'info',
+              title: 'Practice domain',
+              message:
+                  'This is a reserved practice domain from the simulation. example.com and example.test '
+                  'cannot reach a real organisation.',
             ),
           ],
-          const SizedBox(height: 18),
+          const SizedBox(height: 24),
           const Divider(),
-          const SizedBox(height: 14),
-          const Eyebrow('Signals', color: AppColors.muted),
-          const SizedBox(height: 10),
+          const SizedBox(height: 24),
+          const SectionLabel('Signals'),
+          const SizedBox(height: 12),
           if (report.findings.isEmpty)
-            const EmptyNote('No structural red flags found. That is not a guarantee that the site is safe.')
+            const EmptyNote(
+              'No structural red flags found. That is not a guarantee that the site is safe.',
+            )
           else
-            for (final finding in report.findings) FindingTile(finding: finding),
+            for (final finding in report.findings)
+              FindingTile(finding: finding),
           if (report.aiExplanation != null) ...[
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             CoachRead(text: report.aiExplanation!),
           ],
-          const SizedBox(height: 18),
-          const Eyebrow('What to do', color: AppColors.muted),
-          const SizedBox(height: 10),
+          const SizedBox(height: 24),
+          const SectionLabel('What to do'),
+          const SizedBox(height: 12),
           AdviceList(items: report.advice),
           if (report.notChecked.isNotEmpty) ...[
-            const SizedBox(height: 14),
-            const Eyebrow('What this check cannot see', color: AppColors.muted2),
-            const SizedBox(height: 8),
-            for (final item in report.notChecked)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('· ', style: kMono.copyWith(color: AppColors.muted2)),
-                    Expanded(
-                      child: Text(
-                        item,
-                        style: const TextStyle(
-                          color: AppColors.muted2,
-                          fontSize: 11.5,
-                          height: 1.45,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            const SizedBox(height: 24),
+            NotCheckedList(items: report.notChecked),
           ],
+          const SizedBox(height: 24),
+          OutlinedButton.icon(
+            onPressed: onCheckAnother,
+            icon: const Icon(Icons.arrow_upward, size: 16),
+            label: const Text('Check another link'),
+          ),
         ],
       ),
     );

@@ -40,11 +40,11 @@ class Health {
   });
 
   factory Health.fromJson(Map<String, dynamic> json) => Health(
-        ai: _bool(json['ai']),
-        model: _string(json['model'], 'gemini'),
-        scenarios: _int(json['scenarios']),
-        version: _string(json['version'], '0.1.0'),
-      );
+    ai: _bool(json['ai']),
+    model: _string(json['model'], 'gemini'),
+    scenarios: _int(json['scenarios']),
+    version: _string(json['version'], '0.1.0'),
+  );
 }
 
 class Scenario {
@@ -73,17 +73,17 @@ class Scenario {
   });
 
   factory Scenario.fromJson(Map<String, dynamic> json) => Scenario(
-        id: _string(json['id']),
-        title: _string(json['title'], 'Untitled scenario'),
-        org: _string(json['org'], 'Fictional organisation'),
-        channel: _string(json['channel'], 'SMS'),
-        difficulty: _int(json['difficulty'], 1),
-        teaser: _string(json['teaser']),
-        brief: _string(json['brief']),
-        maxTurns: _int(json['max_turns'], 8),
-        flagCount: _int(json['flag_count']),
-        accent: _string(json['accent'], 'lime'),
-      );
+    id: _string(json['id']),
+    title: _string(json['title'], 'Untitled scenario'),
+    org: _string(json['org'], 'Fictional organisation'),
+    channel: _string(json['channel'], 'SMS'),
+    difficulty: _int(json['difficulty'], 1),
+    teaser: _string(json['teaser']),
+    brief: _string(json['brief']),
+    maxTurns: _int(json['max_turns'], 8),
+    flagCount: _int(json['flag_count']),
+    accent: _string(json['accent'], 'lime'),
+  );
 }
 
 class RoundStart {
@@ -104,13 +104,13 @@ class RoundStart {
   });
 
   factory RoundStart.fromJson(Map<String, dynamic> json) => RoundStart(
-        roundId: _string(json['round_id']),
-        scenario: Scenario.fromJson(_map(json['scenario'])),
-        opening: _string(json['opening']),
-        turn: _int(json['turn']),
-        maxTurns: _int(json['max_turns'], 8),
-        status: _string(json['status'], 'active'),
-      );
+    roundId: _string(json['round_id']),
+    scenario: Scenario.fromJson(_map(json['scenario'])),
+    opening: _string(json['opening']),
+    turn: _int(json['turn']),
+    maxTurns: _int(json['max_turns'], 8),
+    status: _string(json['status'], 'active'),
+  );
 }
 
 class SendResult {
@@ -131,15 +131,15 @@ class SendResult {
   });
 
   factory SendResult.fromJson(Map<String, dynamic> json) => SendResult(
-        reply: _string(json['reply']),
-        turn: _int(json['turn']),
-        maxTurns: _int(json['max_turns'], 8),
-        status: _string(json['status'], 'active'),
-        score: json['score'] is Map<String, dynamic>
-            ? WeighIn.fromJson(_map(json['score']))
-            : null,
-        limitReached: _bool(json['limit_reached']),
-      );
+    reply: _string(json['reply']),
+    turn: _int(json['turn']),
+    maxTurns: _int(json['max_turns'], 8),
+    status: _string(json['status'], 'active'),
+    score: json['score'] is Map<String, dynamic>
+        ? WeighIn.fromJson(_map(json['score']))
+        : null,
+    limitReached: _bool(json['limit_reached']),
+  );
 }
 
 class FlagInfo {
@@ -158,12 +158,12 @@ class FlagInfo {
   });
 
   factory FlagInfo.fromJson(Map<String, dynamic> json) => FlagInfo(
-        id: _string(json['id']),
-        label: _string(json['label']),
-        explanation: _string(json['explanation']),
-        severity: _string(json['severity'], 'medium'),
-        spotted: _bool(json['spotted']),
-      );
+    id: _string(json['id']),
+    label: _string(json['label']),
+    explanation: _string(json['explanation']),
+    severity: _string(json['severity'], 'medium'),
+    spotted: _bool(json['spotted']),
+  );
 }
 
 class WeighInFlags {
@@ -178,10 +178,10 @@ class WeighInFlags {
   });
 
   factory WeighInFlags.fromJson(Map<String, dynamic> json) => WeighInFlags(
-        planted: _mapList(json['planted']).map(FlagInfo.fromJson).toList(),
-        spotted: _mapList(json['spotted']).map(FlagInfo.fromJson).toList(),
-        missed: _mapList(json['missed']).map(FlagInfo.fromJson).toList(),
-      );
+    planted: _mapList(json['planted']).map(FlagInfo.fromJson).toList(),
+    spotted: _mapList(json['spotted']).map(FlagInfo.fromJson).toList(),
+    missed: _mapList(json['missed']).map(FlagInfo.fromJson).toList(),
+  );
 }
 
 class ActionInfo {
@@ -198,11 +198,11 @@ class ActionInfo {
   });
 
   factory ActionInfo.fromJson(Map<String, dynamic> json) => ActionInfo(
-        kind: _string(json['kind']),
-        label: _string(json['label']),
-        points: _int(json['points']),
-        source: _string(json['source']),
-      );
+    kind: _string(json['kind']),
+    label: _string(json['label']),
+    points: _int(json['points']),
+    source: _string(json['source']),
+  );
 }
 
 class ScoreBreakdown {
@@ -221,12 +221,12 @@ class ScoreBreakdown {
   });
 
   factory ScoreBreakdown.fromJson(Map<String, dynamic> json) => ScoreBreakdown(
-        start: _int(json['start'], 100),
-        flagBonus: _int(json['flag_bonus']),
-        flagPenalty: _int(json['flag_penalty']),
-        actionPenalty: _int(json['action_penalty']),
-        actionBonus: _int(json['action_bonus']),
-      );
+    start: _int(json['start'], 100),
+    flagBonus: _int(json['flag_bonus']),
+    flagPenalty: _int(json['flag_penalty']),
+    actionPenalty: _int(json['action_penalty']),
+    actionBonus: _int(json['action_bonus']),
+  );
 }
 
 class WeighIn {
@@ -253,16 +253,16 @@ class WeighIn {
   });
 
   factory WeighIn.fromJson(Map<String, dynamic> json) => WeighIn(
-        score: _int(json['score']),
-        grade: _string(json['grade'], '—'),
-        verdict: _string(json['verdict']),
-        summary: _string(json['summary']),
-        flags: WeighInFlags.fromJson(_map(json['flags'])),
-        actions: _mapList(json['actions']).map(ActionInfo.fromJson).toList(),
-        breakdown: ScoreBreakdown.fromJson(_map(json['breakdown'])),
-        advice: _stringList(json['advice']),
-        turnCount: _int(json['turn_count']),
-      );
+    score: _int(json['score']),
+    grade: _string(json['grade'], '—'),
+    verdict: _string(json['verdict']),
+    summary: _string(json['summary']),
+    flags: WeighInFlags.fromJson(_map(json['flags'])),
+    actions: _mapList(json['actions']).map(ActionInfo.fromJson).toList(),
+    breakdown: ScoreBreakdown.fromJson(_map(json['breakdown'])),
+    advice: _stringList(json['advice']),
+    turnCount: _int(json['turn_count']),
+  );
 }
 
 class Finding {
@@ -281,12 +281,12 @@ class Finding {
   });
 
   factory Finding.fromJson(Map<String, dynamic> json) => Finding(
-        id: _string(json['id']),
-        label: _string(json['label']),
-        detail: _string(json['detail']),
-        weight: _int(json['weight']),
-        severity: _string(json['severity'], 'low'),
-      );
+    id: _string(json['id']),
+    label: _string(json['label']),
+    detail: _string(json['detail']),
+    weight: _int(json['weight']),
+    severity: _string(json['severity'], 'low'),
+  );
 }
 
 class LinkReport {
@@ -321,22 +321,22 @@ class LinkReport {
   });
 
   factory LinkReport.fromJson(Map<String, dynamic> json) => LinkReport(
-        input: _string(json['input']),
-        normalized: _string(json['normalized']),
-        host: _string(json['host']),
-        registrableDomain: _string(json['registrable_domain']),
-        score: _int(json['score']),
-        verdict: _string(json['verdict'], 'low'),
-        verdictLabel: _string(json['verdict_label']),
-        severity: _string(json['severity'], 'low'),
-        isDemo: _bool(json['is_demo']),
-        findings: _mapList(json['findings']).map(Finding.fromJson).toList(),
-        advice: _stringList(json['advice']),
-        notChecked: _stringList(json['not_checked']),
-        aiExplanation: json['ai_explanation'] is String
-            ? json['ai_explanation'] as String
-            : null,
-      );
+    input: _string(json['input']),
+    normalized: _string(json['normalized']),
+    host: _string(json['host']),
+    registrableDomain: _string(json['registrable_domain']),
+    score: _int(json['score']),
+    verdict: _string(json['verdict'], 'low'),
+    verdictLabel: _string(json['verdict_label']),
+    severity: _string(json['severity'], 'low'),
+    isDemo: _bool(json['is_demo']),
+    findings: _mapList(json['findings']).map(Finding.fromJson).toList(),
+    advice: _stringList(json['advice']),
+    notChecked: _stringList(json['not_checked']),
+    aiExplanation: json['ai_explanation'] is String
+        ? json['ai_explanation'] as String
+        : null,
+  );
 }
 
 class MessageReport {
@@ -367,18 +367,18 @@ class MessageReport {
   });
 
   factory MessageReport.fromJson(Map<String, dynamic> json) => MessageReport(
-        input: _string(json['input']),
-        score: _int(json['score']),
-        verdict: _string(json['verdict'], 'low'),
-        verdictLabel: _string(json['verdict_label']),
-        severity: _string(json['severity'], 'low'),
-        findings: _mapList(json['findings']).map(Finding.fromJson).toList(),
-        links: _mapList(json['links']).map(LinkReport.fromJson).toList(),
-        phoneNumbers: _stringList(json['phone_numbers']),
-        advice: _stringList(json['advice']),
-        notChecked: _stringList(json['not_checked']),
-        aiExplanation: json['ai_explanation'] is String
-            ? json['ai_explanation'] as String
-            : null,
-      );
+    input: _string(json['input']),
+    score: _int(json['score']),
+    verdict: _string(json['verdict'], 'low'),
+    verdictLabel: _string(json['verdict_label']),
+    severity: _string(json['severity'], 'low'),
+    findings: _mapList(json['findings']).map(Finding.fromJson).toList(),
+    links: _mapList(json['links']).map(LinkReport.fromJson).toList(),
+    phoneNumbers: _stringList(json['phone_numbers']),
+    advice: _stringList(json['advice']),
+    notChecked: _stringList(json['not_checked']),
+    aiExplanation: json['ai_explanation'] is String
+        ? json['ai_explanation'] as String
+        : null,
+  );
 }

@@ -41,17 +41,35 @@ class GeminiService:
     def available(self) -> bool:
         return self._client is not None
 
-    async def start_chat(self, scenario: Scenario):
+    async def start_chat(
+        self,
+        scenario: Scenario,
+        history: list[dict[str, str]] | None = None,
+    ):
         if self._client is None:
             raise GeminiUnavailableError("Gemini is not configured")
         config = types.GenerateContentConfig(
             system_instruction=build_scammer_instruction(scenario),
             temperature=0.9,
             top_p=0.95,
-            max_output_tokens=350,
+            max_output_tokens=1024,
             tools=[types.Tool(function_declarations=_declarations(scenario))],
         )
-        return self._client.aio.chats.create(model=self.model, config=config)
+        sdk_history = None
+        if history:
+            sdk_history = [
+                types.Content(
+                    role="user" if item["role"] == "user" else "model",
+                    parts=[types.Part.from_text(text=item["text"])],
+                )
+                for item in history
+                if item.get("text")
+            ]
+        return self._client.aio.chats.create(
+            model=self.model,
+            config=config,
+            history=sdk_history,
+        )
 
     async def explain_triage(self, kind: str, report: dict) -> str | None:
         """Optional plain-language explanation. Never changes the verdict."""
@@ -65,7 +83,7 @@ class GeminiService:
                     config=types.GenerateContentConfig(
                         system_instruction=build_triage_instruction(),
                         temperature=0.2,
-                        max_output_tokens=450,
+                        max_output_tokens=1024,
                     ),
                 ),
                 timeout=25,

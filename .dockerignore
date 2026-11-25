@@ -1,0 +1,16 @@
+# Only include what the container image needs; never upload secrets or local toolchains.
+*
+!Dockerfile
+!backend/
+!backend/requirements.txt
+!backend/app/
+!backend/app/**
+!frontend/
+!frontend/build/
+!frontend/build/web/
+!frontend/build/web/**
+**/__pycache__/
+**/*.pyc
+**/*Zone.Identifier*
+backend/.env
+backend/.env.*

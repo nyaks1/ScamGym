@@ -31,7 +31,7 @@ class ApiClient {
   final http.Client _client;
 
   ApiClient({required this.baseUrl, http.Client? client})
-      : _client = client ?? http.Client();
+    : _client = client ?? http.Client();
 
   Uri _uri(String path) {
     final base = baseUrl.trim();
@@ -39,7 +39,9 @@ class ApiClient {
       if (kIsWeb) return Uri.base.resolve(path);
       return Uri.parse('http://localhost:8080$path');
     }
-    final clean = base.endsWith('/') ? base.substring(0, base.length - 1) : base;
+    final clean = base.endsWith('/')
+        ? base.substring(0, base.length - 1)
+        : base;
     return Uri.parse('$clean$path');
   }
 
@@ -61,7 +63,11 @@ class ApiClient {
         response = await _client.get(uri, headers: headers).timeout(timeout);
       } else if (method == 'POST') {
         response = await _client
-            .post(uri, headers: headers, body: body == null ? null : jsonEncode(body))
+            .post(
+              uri,
+              headers: headers,
+              body: body == null ? null : jsonEncode(body),
+            )
             .timeout(timeout);
       } else if (method == 'DELETE') {
         response = await _client.delete(uri, headers: headers).timeout(timeout);
@@ -69,7 +75,9 @@ class ApiClient {
         throw const ApiException('Unsupported request method.');
       }
     } on TimeoutException {
-      throw const ApiException('The server took too long to answer. Try again.');
+      throw const ApiException(
+        'The server took too long to answer. Try again.',
+      );
     } catch (_) {
       throw ApiException(
         'Could not reach the ScamGym server at ${uri.origin.isEmpty ? uri.toString() : uri.origin}. '
@@ -158,6 +166,10 @@ class ApiClient {
     return WeighIn.fromJson(data is Map<String, dynamic> ? data : const {});
   }
 
+  Future<void> deleteRound(String roundId) async {
+    await _request('DELETE', '/api/rounds/$roundId');
+  }
+
   Future<LinkReport> checkLink(String url) async {
     final data = await _request(
       'POST',
@@ -175,6 +187,8 @@ class ApiClient {
       body: {'text': text},
       timeout: const Duration(seconds: 45),
     );
-    return MessageReport.fromJson(data is Map<String, dynamic> ? data : const {});
+    return MessageReport.fromJson(
+      data is Map<String, dynamic> ? data : const {},
+    );
   }
 }

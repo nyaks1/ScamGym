@@ -9,7 +9,7 @@ class AppFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final sections = [
+        final sections = const [
           _FooterSection(
             title: 'ScamGym',
             body:
@@ -33,17 +33,17 @@ class AppFooter extends StatelessWidget {
         final wide = constraints.maxWidth >= 760;
         return Container(
           width: double.infinity,
-          margin: const EdgeInsets.only(top: 44),
-          padding: const EdgeInsets.only(top: 24, bottom: 34),
+          margin: const EdgeInsets.only(top: 48),
+          padding: const EdgeInsets.only(top: 32, bottom: 32),
           decoration: const BoxDecoration(
-            border: Border(top: BorderSide(color: AppColors.lineSoft)),
+            border: Border(top: BorderSide(color: AppColors.borderSubtle)),
           ),
           child: wide
               ? Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     for (var i = 0; i < sections.length; i++) ...[
-                      if (i > 0) const SizedBox(width: 26),
+                      if (i > 0) const SizedBox(width: 32),
                       Expanded(child: sections[i]),
                     ],
                   ],
@@ -52,7 +52,7 @@ class AppFooter extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     for (var i = 0; i < sections.length; i++) ...[
-                      if (i > 0) const SizedBox(height: 18),
+                      if (i > 0) const SizedBox(height: 24),
                       sections[i],
                     ],
                   ],
@@ -74,17 +74,27 @@ class _FooterSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title.toUpperCase(),
-          style: kMonoSmall.copyWith(color: AppColors.muted, letterSpacing: 1.3),
+        Semantics(
+          header: true,
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontFamily: 'IBMPlexSans',
+              fontSize: 14,
+              height: 1.43,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
         ),
-        const SizedBox(height: 7),
+        const SizedBox(height: 8),
         Text(
           body,
           style: const TextStyle(
-            color: AppColors.muted2,
-            fontSize: 11.5,
-            height: 1.55,
+            fontFamily: 'IBMPlexSans',
+            color: AppColors.textHelper,
+            fontSize: 12,
+            height: 1.34,
           ),
         ),
       ],

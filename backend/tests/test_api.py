@@ -124,3 +124,51 @@ def test_events_are_rejected_after_the_round_is_scored(client: TestClient) -> No
         json={"kind": "link_clicked", "url": "https://example.com/x"},
     )
     assert response.status_code == 409
+
+
+def test_mid_exchange_failure_rolls_back_planted_flags_and_chat(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from types import SimpleNamespace
+
+    created = client.post("/api/rounds", json={"scenario_id": "kalahari-bank"})
+    round_id = created.json()["round_id"]
+    round_obj = api_module.trainer._get(round_id)
+    initial_planted = set(round_obj.planted)
+
+    class FailingMidToolChat:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        async def send_message(self, payload):
+            self.calls += 1
+            if self.calls == 1:
+                call = SimpleNamespace(name="plant_red_flag", args={"flag_id": "otp_request"})
+                return SimpleNamespace(function_calls=[call], text="", candidates=[])
+            raise RuntimeError("transient provider failure")
+
+    class WorkingChat:
+        async def send_message(self, payload):
+            return SimpleNamespace(
+                function_calls=[],
+                text="Please confirm the case number KB-8841.",
+                candidates=[],
+            )
+
+    chats = [FailingMidToolChat(), WorkingChat()]
+
+    async def fake_start_chat(scenario, history=None):
+        return chats.pop(0)
+
+    monkeypatch.setattr(api_module.trainer.gemini, "start_chat", fake_start_chat)
+
+    failed = client.post(f"/api/rounds/{round_id}/messages", json={"text": "Who is this?"})
+    assert failed.status_code == 502
+    assert round_obj.planted == initial_planted
+    assert round_obj.chat is None
+    assert round_obj.turns == 0
+
+    recovered = client.post(f"/api/rounds/{round_id}/messages", json={"text": "Who is this?"})
+    assert recovered.status_code == 200
+    assert recovered.json()["turn"] == 1
+    assert "KB-8841" in recovered.json()["reply"]
